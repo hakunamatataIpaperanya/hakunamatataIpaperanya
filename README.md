@@ -74,11 +74,5 @@
   <a href="Sidaporn_Jitraveewon_CV.pdf"><img src="assets/btn_cv.svg" height="44" alt="Download my CV"></a>
 </p>
 
-<details>
-<summary><b>🐟 psst… click here to feed the cats</b></summary>
-<br>
-<img src="assets/snack.svg" width="100%" alt="Three kawaii cats happily eating a fish: nom nom, thank you!">
-</details>
-
 <img src="assets/parade.svg" width="100%" alt="Three kawaii cats walking across the grass: thanks for visiting, see you again">
 

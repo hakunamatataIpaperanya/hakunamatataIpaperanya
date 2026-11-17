@@ -365,7 +365,6 @@ HILITE = {(3, 4), (4, 4), (3, 5)}
 SHADE = {(x, y) for x, y in JELLY if y >= 15 or (x >= 19 and y >= 5)}
 EYES_OPEN = {(7, 8), (7, 9), (14, 8), (14, 9)}
 EYES_SHUT = {(6, 9), (7, 9), (8, 9), (13, 9), (14, 9), (15, 9)}
-EYES_HAPPY = {(6, 9), (7, 8), (8, 9), (13, 9), (14, 8), (15, 9)}
 # small ω mouth drawn on a half-size pixel grid (half-cell units) so it stays tiny and centred
 MOUTH_HALF = {(18, 21), (20, 21), (21, 21), (23, 21), (19, 22), (22, 22)}
 CHEEKS = {(4, 10), (5, 10), (16, 10), (17, 10)}
@@ -409,15 +408,13 @@ def build_cat(kind):
 
 
 def mascot(kind, x, y, sc, mood="awake", delay=0.0, bob=True):
-    """mood: awake (blinks) · sleep (eyes shut) · happy (^ ^ eyes, chewing)."""
+    """mood: awake (blinks) · sleep (eyes shut)."""
     cm, eye = build_cat(kind)
     eyes = {k: cmap_svg({c: eye for c in local(v)}, x, y, sc)
-            for k, v in (("open", EYES_OPEN), ("shut", EYES_SHUT), ("happy", EYES_HAPPY))}
+            for k, v in (("open", EYES_OPEN), ("shut", EYES_SHUT))}
     st = f' style="animation-delay:{delay:.2f}s"'
     if mood == "sleep":
         face = eyes["shut"]
-    elif mood == "happy":
-        face = f'<g class="chewA"{st}>{eyes["happy"]}</g><g class="chewB"{st}>{eyes["shut"]}</g>'
     else:
         face = f'<g class="eo"{st}>{eyes["open"]}</g><g class="ec"{st}>{eyes["shut"]}</g>'
     mouth = cells_d({(hx + 2 * OX, hy + 2 * OY) for hx, hy in MOUTH_HALF}, sc / 2, x, y)
@@ -433,8 +430,6 @@ CLOUD_CM = {**{q: "#f4dce9" for x, y in CLOUD for q in ((x + 1, y), (x - 1, y), 
             **{c: WHITE for c in CLOUD}}
 BERRY = ["....g.g.g...", "...ggggggg..", "..#gggggg#..", ".#rrrrrrrr#.", "#rryrrrryrr#", "#rrrrryrrrr#",
          "#ryrrrrrryr#", ".#rrryrrrr#.", ".#rrrrrrrr#.", "..#ryrrr#...", "...#rrr#....", "....###....."]
-FISH = ["...#####........", ".##ooooo##....##", "#ohoooooooo#.#o#", "#oKooooooooo##o#", "#oooooooooooooo#",
-        "#ooooooooooo##o#", ".##ooooooo##.#o#", "...#######....##"]
 FLOWER = [".p.", "pyp", ".p."]
 GEM = ["..###..", ".#ooo#.", "#ohooo#", "#ooooo#", ".#ooo#.", "..#o#..", "...#..."]
 ICON_LETTER = ["#######", "##...##", "#.#.#.#", "#..#..#", "#.....#", "#######"]
@@ -661,31 +656,6 @@ def icon(kind):
     return svg(W, H, body, BOB + BLINKS, label=f"{kind} icon")
 
 
-# ------------------------------------------------------------------ 8 · snack time (easter egg)
-def snack():
-    W, H = 960, 230
-    body = card(4, 4, W - 8, H - 8, BUT_L, PL)
-    body += ctext("NOM NOM ~ THANK YOU!", W // 2 - 14, 22, 3, PL)
-    body += heart(W // 2 + tw("NOM NOM ~ THANK YOU!", 3) // 2 - 4, 22, 3, PINK, 'class="bl"')
-    xs = {"mikan": 227, "mochi": 479, "yume": 621}
-    for k, (kind, x) in enumerate(xs.items()):
-        body += mascot(kind, x, 110, 4, "happy", k * .2)
-        body += heart(x + 49, 98, 2, PINK, f'class="rise" style="animation-delay:{k * .9:.1f}s"')
-    # a fish with bites taken out of it, then a fresh one
-    bx, by, sc = 369, 130, 5
-    body += sprite(FISH, {"#": PL, "o": "#a9d8f7", "h": WHITE, "K": INK}, bx, by, sc)
-    css = BOB + BLINK + RISE + (".chewA{animation:chA .5s steps(1) infinite}@keyframes chA{50%{opacity:0}}"
-                                ".chewB{opacity:0;animation:chB .5s steps(1) infinite}@keyframes chB{50%{opacity:1}}")
-    bites = [[(9, 2), (10, 2), (10, 3), (11, 3)], [(8, 2), (8, 3), (9, 3), (9, 4), (10, 4), (11, 4)],
-             [(7, 3), (7, 4), (8, 4), (9, 5), (10, 5), (11, 5)], [(6, 4), (7, 5), (8, 5), (8, 6), (9, 6)]]
-    for b, cells in enumerate(bites):
-        start, end = 15 + b * 18, 92
-        css += (f".bite{b}{{opacity:0;animation:bite{b} 6s steps(1) infinite}}"
-                f"@keyframes bite{b}{{0%{{opacity:0}}{start}%{{opacity:1}}{end}%{{opacity:0}}}}")
-        body += f'<path class="bite{b}" d="{cells_d(cells, sc, bx, by)}" fill="{BUT_L}"/>'
-    return svg(W, H, body, css, label="Easter egg: three kawaii cats happily eating a fish")
-
-
 # ------------------------------------------------------------------ 9 · parade + divider
 PAW = [".#.#.", "#...#", ".###.", "#####", ".###."]
 FLAG = ["#######", ".#####.", "..###..", "...#..."]
@@ -774,6 +744,5 @@ if __name__ == "__main__":
     save("inventory.svg", inventory())
     for k in ("dinocat", "snek"):
         save(f"icon_{k}.svg", icon(k))
-    save("snack.svg", snack())
     save("parade.svg", parade())
     save("divider.svg", divider())
